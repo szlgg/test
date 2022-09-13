@@ -1,0 +1,87 @@
+{{ define "profile.html" }}
+<!-- 基本资料 -->
+<div class="layui-col-md6">
+    <div class="card">
+        <div class="card-header"><span class="icon iconfont" style="margin-right: 10px">&#xe622;</span>基本资料</div>
+        <div class="user-edit-box">
+            <form class="layui-form profile-form" method="post">
+                <input name="id" value="{{.User.Id}}" type="hidden">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">账号</label>
+                    <div class="layui-input-block user-passport">
+                        <p>{{.User.Passport}}</p>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="nickname"  lay-verify="required" placeholder="请输入昵称" autocomplete="off" class="layui-input" value="{{.User.Nickname}}">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">性别</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="gender" value="0" title="未知" {{if eq .User.Gender 0}} checked {{end}}>
+                        <input type="radio" name="gender" value="1" title="男" {{if eq .User.Gender 1}} checked {{end}}>
+                        <input type="radio" name="gender" value="2" title="女" {{if eq .User.Gender 2}} checked {{end}}>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" type="button" id="profileButton">保存</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    jQuery(function ($) {
+        var button_status = true
+
+        $("#profileButton").click(function () {
+            var data = {};
+            var params = $(".profile-form").serializeArray();
+            var status = true;
+
+            if (button_status === true) {
+                button_status = false
+
+                // 验证表单项
+                $.each(params, function (index, value) {
+                    // 去掉所有空格符
+                    value.value = value.value.replace(/\s+/g,'');
+                    if (value.name === "nickname" && value.value === null || value.value === undefined || value.value === "") {
+                        layer.msg("昵称不能为空", {icon: 2});
+                        status = false;
+                        return false
+                    }
+                    data[value.name] = value.value;
+                })
+                if (!status) {
+                    return false;
+                }
+
+                // 禁用按钮
+                $("#profileButton").addClass("layui-btn-disabled");
+
+                // post提交
+                $.post("/user/update-profile", data, function (data) {
+                    if (data.code === 0) {
+                        layer.msg(data.message, {icon: 1});
+                    } else {
+                        layer.msg(data.message, {icon: 2});
+                    }
+                    // 恢复按钮
+                    setTimeout(function () {
+                        $("#profileButton").toggleClass("layui-btn-disabled");
+                        window.location.href = "/user/profile";
+                        button_status = true
+                    }, 1000)
+                });
+            }
+        });
+    });
+</script>
+{{end}}

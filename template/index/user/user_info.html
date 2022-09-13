@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+{{ define "user/user_info.html" }}
+<html>
+
+<head>
+    {{template "header.html" .}}
+</head>
+
+<body class="body-color">
+<div class="container-fluid">
+    <!-- 顶部导航栏 -->
+    {{template "navber.html" .}}
+
+    <!-- 个人信息 -->
+    <main>
+        <div class="layui-row layui-col-space15">
+            <div class="user-info-box">
+                <!-- 我的资料 -->
+                <div class="layui-col-md2 menu-box">
+                    <div class="card">
+                        <div class="card-header">我的资料</div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item" id="user-profile {{if eq .Type "profile"}} active {{end}}" onmouseover="overIt(this)" onmouseout="outIt(this)"><a
+                                    href="/user/profile"><span class="icon iconfont">&#xe622;</span> 基本资料</a>
+                            </li>
+                            <li class="list-group-item {{if eq .Type "avatar"}} active {{end}}" id="user-avatar" onmouseover="overIt(this)" onmouseout="outIt(this)"><a
+                                    href="/user/avatar"><span class="icon iconfont">&#xe601;</span> 修改头像</a>
+                            </li>
+                            <li class="list-group-item {{if eq .Type "password"}} active {{end}}" id="user-passwd" onmouseover="overIt(this)" onmouseout="outIt(this)"><a
+                                    href="/user/password"><span class="icon iconfont">&#xe61f;</span> 修改密码</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 基本信息 -->
+                {{if eq .Type "profile"}}
+                {{template "profile.html" .}}
+                {{end}}
+
+                <!-- 修改头像 -->
+                {{if eq .Type "avatar"}}
+                {{template "avatar.html" .}}
+                {{end}}
+
+                <!-- 修改密码 -->
+                {{if eq .Type "password"}}
+                {{template "password.html" .}}
+                {{end}}
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    {{template "footer.html" .}}
+</div>
+</body>
+
+<script type="application/javascript">
+    function overIt(obj) {
+        obj.classList.add("user-this-color")
+    }
+
+    function outIt(obj) {
+        obj.classList.remove("user-this-color")
+    }
+    //
+    // gf.content = {
+    //     // 删除回复
+    //     delete: function (id) {
+    //         layer.confirm('您确定删除回复信息吗？', {icon: 0, title:'删除回复'}, function(index){
+    //             jQuery.ajax({
+    //                 type: 'POST',
+    //                 url: '/reply/do-delete',
+    //                 data: {
+    //                     id: id,
+    //                 },
+    //                 success: function (r) {
+    //                     if (r.code === 0) {
+    //                         layer.alert(r.message, {icon: 1}, function(){
+    //                             location.reload(); // 刷新页面同步回复统计
+    //                         });
+    //                     } else {
+    //                         layer.alert(r.message, {icon: 2});
+    //                     }
+    //                 },
+    //                 error: function (html) {
+    //                 }
+    //             });
+    //         });
+    //     },
+    // }
+</script>
+</html>
+
+{{end}}

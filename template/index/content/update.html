@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {{template "header.html" .}}
+    <link rel="stylesheet" href="/public/plugin/vditor/dist/index.css"/>
+    <script src="/public/plugin/vditor/dist/index.min.js" defer></script>
+</head>
+
+<body class="body-color">
+<div class="container-fluid">
+    <!-- 顶部导航栏 -->
+    {{template "navber.html" .}}
+
+    <!--发布内容 -->
+    <main>
+        <div class="col-sm-10 offset-md-1 gf-publish">
+            <div class="card">
+                <div class="card-header">
+                    修改内容
+                </div>
+                <div class="card-body">
+                    <form class="layui-form" id="contentForm" action="/content/do-update" method="post">
+                        <input type="hidden" value="{{.Data.Content.Id}}" name="id">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>标题</label>
+                            <div class="layui-input-block">
+                                <input type="text" name="title" lay-verify="required" placeholder="请输入标题"
+                                       autocomplete="off" class="layui-input" value="{{.Data.Content.Title}}">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>栏目</label>
+                            <div class="layui-input-block">
+                                <select name="categoryId" lay-verify="required">
+                                    {{range $index, $item := .CategoryList}}
+                                    <option value="{{$item.Id}}" {{if eq $item.Id $.Data.Content.CategoryId}}selected{{end}}>{{$item.Name}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item" style="margin-bottom: 15px">
+                            <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>内容</label>
+                            <div class="layui-input-block">
+                                <textarea name="content" style="display: none">{{.Data.Content.Content}}</textarea>
+                                <div id="vditor"></div>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-input-block">
+                                <button type="submit" class="layui-btn layui-btn-fluid" style="width: 20%">保存</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    {{template "footer.html" .}}
+</div>
+</body>
+
+<script type="text/javascript">
+    jQuery(function ($) {
+        // 编辑器初始化
+        let editor = new Vditor('vditor', {
+            cdn: '/public/plugin/vditor/',
+            theme: 'classic',
+            height: 400,
+            icon: 'ant',
+            mode: 'wysiwyg',
+            value : $('textarea[name=content]').val(),
+            cache: {enable: false},
+            placeholder: "请输入内容",
+            toolbar: [
+                "emoji",
+                "headings",
+                "bold",
+                "italic",
+                "strike",
+                "link",
+                "|",
+                "list",
+                "ordered-list",
+                "check",
+                "outdent",
+                "indent",
+                "|",
+                "quote",
+                "line",
+                "code",
+                "inline-code",
+                "insert-before",
+                "insert-after",
+                "|",
+                "upload",
+                "table",
+                "|",
+                "undo",
+                "redo",
+                "|",
+                "fullscreen",
+                "edit-mode",
+                "outline",
+                "preview"
+            ],
+            upload: {
+                accept: 'image/*',       // 附件格式
+                url: '/file/upload',  // 上传路径
+                linkToImgUrl: '/file/upload',  // 粘贴图片上传
+                max: 8 * 1024 * 1024, // 最大上传文件大小（8MB）
+                filename(name) {
+                    return name.replace(/[^(a-zA-Z0-9\u4e00-\u9fa5\.)]/g, '').replace(/[\?\\/:|<>\*\[\]\(\)\$%\{\}@~]/g, '').replace('/\\s/g', '')
+                },
+                // // 格式化上传返回
+                // format(file, response) {
+                //     const {code, data, msg} = JSON.parse(response)
+                //     return JSON.stringify({msg, code, data: {errFiles: [], succMap: {"image.png": data.Url}}})
+                // }
+                // 格式化上传返回
+                format(file, response) {
+                    const {code, data, message} = JSON.parse(response)
+                    var arr = {data: {errFiles: [], succMap: {}}};
+                    var url = window.location.origin + "/"
+
+                    if (code === 1) {
+                        layer.msg(message, {icon: 2});
+                        return
+                    }
+
+                    for (var i in data) {
+                        arr.data.succMap[data[i].Name] = url + data[i].Url;
+                    }
+
+                    layer.msg(message);
+                    return JSON.stringify(arr)
+                }
+            },
+            preview: {
+                maxWidth: 1920
+            },
+        });
+        // 表单校验
+        $('#contentForm').validate({
+            errorElement: 'div',
+            errorClass: 'validation-error-block',
+            focusInvalid: true,
+            rules: {
+                title: {
+                    required: true
+                },
+                categoryId: {
+                    required: true
+                }
+            },
+            messages: {
+                title: {
+                    required: "请输入标题"
+                },
+                categoryId: {
+                    required: "请选择栏目"
+                }
+            },
+
+            submitHandler: function (form) {
+                // 将编辑器的内容设置到content输入域中
+                let value = editor.getValue()
+                if (value.length < 2) {
+                    layer.alert('请输入内容', {icon: 2});
+                    return
+                }
+
+                $('textarea[name=content]').val(value)
+
+                $(form).ajaxSubmit({
+                    dataType: 'json',
+                    success: function (r, textStatus) {
+                        if (r.code === 0) {
+                            layer.confirm(r.message, {
+                                icon: 1, title:'提示', btn: ['继续撰写', '查看详情'] //按钮
+                            }, function () {
+                                // 继续撰写
+                                location.reload()
+                            }, function () {
+                                // 查看详情
+                                window.location.href = "/{{.Data.Content.Type}}/{{.Data.Content.Id}}"
+                            });
+                        } else {
+                            layer.msg(r.message, {icon: 2});
+                        }
+                    }
+                });
+            },
+        });
+    });
+</script>
+</html>

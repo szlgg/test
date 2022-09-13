@@ -1,0 +1,168 @@
+{{ define "content/index.html" }}
+
+<!--左侧文章列表-->
+<div class="layui-row layui-col-space15">
+    <div class="layui-col-md9">
+        <div class="layui-panel">
+            <ul class="list-group">
+                <!--面包屑-->
+                <li class="list-group-item" id="list-group-item-header">
+                    <div class="float-left">
+                        <span class="layui-breadcrumb" lay-separator=" ">
+                            {{range $index, $item := .categoryList}}
+                            <a class="btn text-secondary btn-sm {{if eq $.Cate .Id}}text-primary{{else}}text-secondary{{end}}" href="/{{$.ContentType}}?cate={{$item.Id}}&sort={{$.Sort}}">{{$item.Name}}</a>
+                            {{end}}
+                        </span>
+                    </div>
+                    <div class="float-right">
+                        <span class="layui-breadcrumb" lay-separator=" ">
+                            <a class="btn text-secondary btn-sm {{if eq .Sort 1}}text-primary{{else}}text-secondary{{end}}" href="/{{.ContentType}}?cate={{.Cate}}&sort=1">最新</a>
+                            <a class="btn text-secondary btn-sm {{if eq .Sort 2}}text-primary{{else}}text-secondary{{end}}" href="/{{.ContentType}}?cate={{.Cate}}&sort=2">活跃</a>
+                            <a class="btn text-secondary btn-sm {{if eq .Sort 3}}text-primary{{else}}text-secondary{{end}}" href="/{{.ContentType}}?cate={{.Cate}}&sort=3">热度</a>
+                        </span>
+                    </div>
+                </li>
+
+                <!-- 判断数据是否为空 -->
+                {{if eq .Page.Total 0}}
+                <div class="empty">
+                    <svg t="1660875787555" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                         xmlns="http://www.w3.org/2000/svg" p-id="2311" width="45" height="45">
+                        <path d="M393.752 674.476c20.362 39.462 37.694 76.946 51.997 112.453l43.104-19.142c-15.153-34.692-33.695-71.766-55.625-111.22l-39.475 17.908z"
+                              p-id="2312" fill="#c7c7c7"></path>
+                        <path d="M547.469 670.303c18.743 33.891 36.888 70.775 54.433 110.654l42.467-20.344c-16.749-35.486-35.891-71.372-57.424-107.653l-39.475 17.343z"
+                              p-id="2313" fill="#c7c7c7"></path>
+                        <path d="M231.656 776.208c14.749 6.381 28.905 12.761 42.467 19.142 27.913-50.277 49.448-93.957 64.599-131.040l-42.467-16.099c-13.563 35.885-35.096 78.549-64.599 127.997z"
+                              p-id="2314" fill="#c7c7c7"></path>
+                        <path d="M548.004 214.989h-0.010c-0.010 0-0.021 0-0.031 0-9.942 0.023-17.981 8.1-17.96 18.041 0.023 9.925 8.076 17.96 18 17.96 9.942 0 18-8.060 18-18 0-9.942-8.059-18-18-18z"
+                              p-id="2315" fill="#c7c7c7"></path>
+                        <path d="M830.182 193.791c-170.392-170.392-443.421-175.542-619.99-15.554l-0.401-0.401-31.868 31.868 0.401 0.401c-160.091 176.621-154.942 449.732 15.451 620.114s443.421 175.542 620.042 15.502l0.401 0.401 31.868-31.868-0.401-0.401c160.040-176.643 154.89-449.67-15.502-620.063zM225.642 798.331c-152.813-152.813-157.932-397.344-15.41-556.336l68.496 68.496c-18.608 23.141-38.93 44.85-60.797 64.939 10.766 13.158 20.138 25.518 28.117 37.080 22.766-22.232 44.057-45.926 63.737-70.932l24.148 24.148v71.878h-89.118v38.293h89.118v112.453h-108.26v38.303h369.218l187.097 187.097c-159.012 142.513-403.533 137.393-556.347-15.42zM444.093 475.896l1.101 1.079v111.374h-71.775v-112.453h70.675zM373.418 437.603v-32.413l32.372 32.413h-32.372zM445.172 413.343l-54.803-54.803c20.3-1.593 37.961-14.507 45.633-33.369h9.17v88.172zM386.010 340.971c-19.871 0-35.979-16.109-35.979-35.979s16.109-35.979 35.979-35.979 35.979 16.109 35.979 35.979-16.109 35.979-35.979 35.979zM507.747 475.896h48.738v48.686l-48.738-48.686zM556.485 588.217v0.123h-71.775v-71.899l71.775 71.775zM556.444 437.603h-71.775v-112.433h71.816v112.443l-0.041-0.010zM458.043 287.032v-54.001c0.004-34.788 28.203-62.987 62.991-62.991 34.792-0.004 62.999 28.198 63.003 62.991v53.95l-0.041 0.051h-125.951zM664.992 358.981c0.925 0 1.789-0.277 2.704-0.277v78.899h-71.775v-112.443l19.059 0.010c8.215 20.416 28.006 33.796 50.013 33.812zM629.010 304.991c0-19.871 16.109-35.979 35.979-35.979s35.979 16.108 35.979 35.979-16.109 35.979-35.979 35.979-35.979-16.109-35.979-35.979zM667.694 475.887v112.443h-47.494l-24.281-24.281v-88.162h71.775zM813.805 781.985l-17.857-17.887 9.962-5.84c-23.055-39.788-48.212-78.321-75.363-115.434l-35.055 20.817-37.008-37.008h150.963v-38.283h-102.277v-112.464h75.959v-38.283h-75.959v-99.244c3.227-3.986 5.865-8.413 7.834-13.148h77.717v-39.475h-77.42c-5.459-14.393-16.823-25.759-31.218-31.218-27.774-10.534-58.83 3.443-69.363 31.218h-12.706v-52.706c0-44.734-36.263-80.996-80.996-80.996s-80.996 36.262-80.996 80.996v52.665h-3.711c-9.863-26.955-39.427-41.123-66.615-31.919 5.787-9.695 11.441-19.563 16.881-29.689l-42.467-17.343c-11.086 23.322-23.907 45.778-38.355 67.18l-63.737-63.737c159.011-142.513 403.533-137.393 556.347 15.42 152.803 152.813 157.932 397.344 15.441 556.377z"
+                              p-id="2316" fill="#c7c7c7"></path>
+                        <path d="M494.003 214.989c-0.013 0-0.028 0-0.041 0-9.94 0.023-17.981 8.1-17.96 18.041 0.023 9.925 8.076 17.96 18 17.96 9.942 0 18-8.059 18-18 0-9.94-8.060-18-18-18z"
+                              p-id="2317" fill="#c7c7c7"></path>
+                    </svg>
+                    <h3>暂无数据</h3>
+                </div>
+                {{else}}
+                <!--文章列表-->
+                {{range $index, $item := .Data}}
+                <li class="list-group-item gf-list-item this-content" onmouseover="overIt(this)" onmouseout="outIt(this)">
+                    <div class="gf-list-item-img">
+                        <img src="{{$item.User.Avatar}}" style="height: 36px;width:36px;">
+                    </div>
+                    <div class="gf-list-item-text">
+                        <div class="float-left">
+                            <span class="badge {{if eq $.ContentType ""}}badge-success{{else}}badge-primary{{end}}">{{$item.Category.Name}}</span>
+                            <span class="gf-list-item-title">
+                            <a href="/{{$item.Category.ContentType}}/{{$item.Content.Id}}">{{$item.Content.Title}}</a>
+                        </span>
+                        </div>
+                        <div class="float-right">
+                            <span style="color: #ccc;text-align: right;">
+                                    <span class="iconfont">
+                                        <span class="icon iconfont">&#xe660;</span> {{$item.Content.ViewCount}}
+                                        &nbsp;&nbsp;|&nbsp;&nbsp;
+                                        <span class="icon iconfont">&#xe6ab;</span> {{$item.Content.ReplyCount}}
+                                        &nbsp;&nbsp;|&nbsp;&nbsp;
+                                    </span>
+                                </span>
+                            <span style="font-size: 16px;color: #ccc;-webkit-font-smoothing: antialiased;">{{$item.Content.CreatedTime | FormatTime}}</span>
+                        </div>
+                    </div>
+                </li>
+                {{end}}
+                {{end}}
+
+                <!--分页-->
+                <li class="list-group-item gf-list-item">
+                    <div id="demo4"></div>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+    <!--右侧box-->
+    <div class="right-box layui-col-md3">
+        <!--发布按钮-->
+        <div class="layui-panel">
+            <div style="padding: 10px;">
+                <a href="../content/create?type=topic">
+                    <button type="button" class="layui-btn layui-btn-fluid">发布文章</button>
+                </a>
+            </div>
+        </div>
+        <!--社区列表-->
+        <div class="card gf-card">
+            <div class="card-header">XX社区</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><a href="https://www.kancloud.cn/ming5112/dolphinphp/256299" target="_blank">
+                    <span class="icon iconfont">&#xe61c;</span> 官网文档</a></li>
+                <li class="list-group-item"><a href="http://bbs.dolphinphp.com/" target="_blank">
+                    <span class="icon iconfont">&#xe666;</span> 加入我们</a></li>
+                <li class="list-group-item"><a href="https://dolphinphp.com/donate.html" target="_blank">
+                    <span class="icon iconfont"></span> 赞助我们</a></li>
+            </ul>
+        </div>
+        <!--社区赞助商-->
+        <div class="card gf-card sponsor-link">
+            <div class="card-header">社区赞助商</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <a href="https://dolphinphp.com/" target="_blank">
+                        <img style="width: 120px;" src="http://demo.dolphinphp.com/static/admin/img/avatar.jpg">
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    function overIt(obj) {
+        obj.style.backgroundColor = "#f0ffe785";
+    }
+    function outIt(obj) {
+        obj.style.backgroundColor = "#fff";
+    }
+
+    var $_GET = (function() {
+        var url = window.document.location.href.toString();
+        var u = url.split("?");
+        if (typeof (u[1]) == "string") {
+            u = u[1].split("&");
+            var get = {};
+            for (var i in u) {
+                var j = u[i].split("=");
+                get[j[0]] = j[1];
+            }
+            return get;
+        } else {
+            return {};
+        }
+    })();
+
+        layui.use(['laypage'], function(){
+        var laypage = layui.laypage;
+        // 数据总数
+        var num = {{.Page.Total}};
+
+        laypage.render({
+            elem: 'demo4'
+            //obj包含了当前分页的所有参数，比如：
+            ,first: false
+            ,last: false
+            ,count: num //数据总数，从服务端得到
+            ,curr: $_GET['page']
+            ,jump: function(obj, first){
+                //首次不执行
+                if(!first){
+                    var url = window.location.origin + window.location.pathname + "?sort=" + {{.Sort}} + "&cate=" + {{.Cate}} + "&page=" + obj.curr
+                    window.location.replace(url)
+                }
+            }
+        });
+
+    });
+</script>
+{{end}}

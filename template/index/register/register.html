@@ -1,0 +1,155 @@
+{{ define "register.html" }}
+<!-- 注册页面 -->
+<div class="row">
+    <div class="layui-col-md6 offset-md-3">
+        <div class="card">
+            <div class="card-header">
+                <span class="iconfont">&#xe666;</span> 用户注册
+            </div>
+            <div class="card-body">
+                <form class="layui-form register-form" method="post">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>账号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="passport"  lay-verify="passport" placeholder="请输入账号"
+                                   autocomplete="off" class="layui-input" minlength="3" maxlength="20">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>昵称</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="nickname" lay-verify="nickname" placeholder="请输入昵称"
+                                   autocomplete="off" class="layui-input" minlength="2" maxlength="20">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>密码</label>
+                        <div class="layui-input-block">
+                            <input type="password" name="password" lay-verify="password" placeholder="请输入密码"
+                                   autocomplete="off" class="layui-input" minlength="6" maxlength="20" id="password">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>确认密码</label>
+                        <div class="layui-input-block">
+                            <input type="password" name="password2" lay-verify="repeat" placeholder="请再次输入密码"
+                                   autocomplete="off" class="layui-input" minlength="6" maxlength="20">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>验证码</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="captcha" lay-verify="captcha" placeholder="请输入正确的验证码"
+                                   autocomplete="off" class="layui-input" minlength="4" maxlength="4">
+                        </div>
+                        <div class="input-group-append">
+                                    <span class="input-group-text" style="cursor: pointer;padding: 0;">
+                                        <img id="code-img" class="captcha" loading="lazy" onclick="gf.reloadCaptcha()">
+                                    </span>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button type="button" class="layui-btn" id="registerButton">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="http://static.runoob.com/assets/jquery-validation-1.14.0/dist/localization/messages_zh.js"></script>
+<script type="text/javascript">
+    jQuery(function ($) {
+        var button_status = true
+
+        gf.reloadCaptcha();
+
+        $("#registerButton").click(function(){
+            if($(".register-form").valid()){
+                $(".register-form").submit();
+            }
+        });
+
+        $(function() {
+            $('.register-form').validate({
+                Locale: 'ZH',
+                errorClass: 'validation-error-block',
+                focusInvalid: true,
+                rules: {
+                    passport: {
+                        required: true,
+                    },
+                    nickname: {
+                        required: true,
+                    },
+                    password: {
+                        required: true,
+                    },
+                    password2: {
+                        required: true,
+                        equalTo: "#password"
+                    },
+                    captcha: {
+                        required: true,
+                    },
+                },
+                messages: {
+                    passport: {
+                        required: "请输入账号"
+                    },
+                    nickname: {
+                        required: "请确认昵称"
+                    },
+                    password: {
+                        required: "请输入密码"
+                    },
+                    password2: {
+                        required: "请确认密码",
+                        equalTo: "输入的新密码两次不同"
+                    },
+                    captcha: {
+                        required: "请确认验证码"
+                    }
+                },
+            })
+        });
+
+        $.validator.setDefaults({
+            submitHandler: function() {
+                // 获取表单数据
+                var data = $('.register-form').serialize();
+                if (button_status === true) {
+                    button_status = false
+                    // 禁用按钮
+                    $("#registerButton").addClass("layui-btn-disabled");
+
+                    // post提交
+                    $.post("/register", data, function (data) {
+                        if (data.code === 0) {
+                            layer.msg("注册成功！自动跳转至登录页面", {icon: 1});
+                            setTimeout(function () {
+                                window.location.href = "/login"
+                            }, 200)
+                        } else {
+                            layer.msg(data.message, {icon: 2});
+                        }
+                        // 恢复按钮
+                        setTimeout(function () {
+                            $("#registerButton").toggleClass("layui-btn-disabled");
+                            button_status = true
+                        }, 3000)
+                        // 刷新验证码
+                        gf.reloadCaptcha()
+                    });
+                }
+            }
+        });
+
+    });
+
+</script>
+
+{{end}}

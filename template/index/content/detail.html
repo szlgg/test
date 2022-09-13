@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+{{ define "content/detail.html" }}
+<html>
+
+<head>
+    {{template "header.html" .}}
+    <link rel="stylesheet" href="/public/plugin/prism/prism.css">
+    <script src="/public/plugin/prism/prism.js"></script>
+    <link rel="stylesheet" href="/public/plugin/vditor/dist/index.css"/>
+    <script src="/public/plugin/vditor/dist/index.min.js" defer></script>
+</head>
+
+<body class="body-color">
+<div class="container-fluid">
+    <!-- 顶部导航栏 -->
+    {{template "navber.html" .}}
+
+    <!--文章详情 -->
+    <main>
+        <div class="layui-row layui-col-space15">
+            <!-- 内容 -->
+            <div class="layui-col-md9">
+                <div class="detail-panel">
+                    <ul class="list-group">
+                        <!-- 面包屑导航 -->
+                        <li class="list-group-item">
+                            <span class="layui-breadcrumb">
+                                {{range $inex, $item := .BreadCrumb}}
+                                <a href="{{$item.Url}}">{{$item.Name}}</a>
+                                {{end}}
+                                <a><cite>内容详情</cite></a>
+                            </span>
+                        </li>
+
+                        <li class="list-group-item">
+                            <!-- 标题 -->
+                            <h2 class="gf-title">{{.Data.Content.Title}}</h2>
+
+                            <!-- 浏览量/回复量/点赞/发布时间 -->
+                            <div class="gf-detail-info">
+                                <span class="layui-breadcrumb">
+                                    <a><cite><span class="icon iconfont">&#xe660;</span><span class="number" style="margin-left: 5px">{{.Data.Content.ViewCount}}</span></cite></a>
+                                    <a><cite><span class="icon iconfont">&#xe6ab;</span><span class="number" style="margin-left: 5px">{{.Data.Content.ReplyCount}}</span></cite></a>
+                                    <a href="javascript:void(0);" data-type="content" onclick="javascript:gf.content.zan(this, {{.Data.Content.Id}})">
+                                        {{if DidIZan "content" .Data.Content.Id .User.Id}}
+                                        <span class="icon iconfont icon-zan"></span>
+                                        {{else}}
+                                        <span class="icon iconfont icon-zan1"></span>
+                                        {{end}}
+                                        <span class="number">{{.Data.Content.ZanCount}}</span>
+                                    </a>
+                                    <a href="javascript:void(0);" data-type="content" onclick="javascript:gf.content.cai(this, {{.Data.Content.Id}})">
+                                        {{if DidICai "content" .Data.Content.Id .User.Id}}
+                                        <span class="icon iconfont icon-cai1"></span>
+                                        {{else}}
+                                        <span class="icon iconfont icon-cai2"></span>
+                                        {{end}}
+                                        <span class="number">{{.Data.Content.CaiCount}}</span>
+                                    </a>
+                                    <a><cite>发布于 {{.Data.Content.CreatedTime | FormatTime}}</cite></a>
+                                </span>
+
+                                {{if ne .User.Id 0}}
+                                {{if eq .Data.Content.Uid .User.Id}}
+                                <a href="/content/update?id={{.Data.Content.Id}}" style="font-size: 15px; margin-left: 25px">编辑</a>
+                                {{end}}
+                                {{end}}
+                            </div>
+
+                            <!-- 文章内容 -->
+                            <div class="gf-content markdown-body" id="gf-content">{{.Data.Content.Content}}</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- 回复 -->
+                <div class="detail-panel" style="margin-top: 10px">
+                    <ul class="list-group">
+                        <!-- 回复数量 -->
+                        <li class="list-group-item">共 {{.Data.Content.ReplyCount}} 条回复</li>
+
+                        <!-- 回复详情 -->
+                        {{range $index, $item := .ReplyList}}
+                        <li class="list-group-item" id="reply_{{ $item.Reply.Id }}">
+                            <div class="reply">
+                                <div class="reply-avatar">
+                                    <a href="/user/{{$item.User.Id}}">
+                                        <img class="img-thumbnail" src="{{$item.User.Avatar}}"
+                                             style="max-width:35px;border-radius: 120px;" alt="">
+                                    </a>
+                                    <a data-type="reply" href="" class="text-dark font-weight-bold">{{$item.User.Nickname}}</a>
+                                    <span class="text-success">#{{$item.Reply.Id}}</span> · <span class="text-secondary">{{$item.Reply.CreatedTime | FormatTime}}</span>
+                                        {{if $item.Reply.ParentId}}
+                                        回复<a class="reply-id" href="#reply_{{$item.Reply.ParentId}}"><span>#{{$item.Reply.ParentId}}</span></a>
+                                        {{end}}
+                                    <!--                                    <span class="badge badge-success" id="adopted_it_146"-->
+                                    <!--                                          style="display: none;">已采纳</span>-->
+                                    <!--                                    <a data-type="reply" class="adopted_btn_137" id="adopted_btn_146"-->
+                                    <!--                                       href="javascript:gf.content.adopted(146);"-->
+                                    <!--                                       style="font-size: 14px; display: none;">采纳</a>-->
+                                </div>
+                                <div class="reply-content">
+                                    {{$item.Reply.Content | HTML}}
+                                </div>
+
+                                <!-- 点赞/回复/删除 -->
+                                <span class="layui-breadcrumb reply-operating">
+                                    <a href="javascript:void(0);" data-type="reply" onclick="gf.content.zan(this, {{$item.Reply.Id}})">
+                                        {{if DidIZan "reply" $item.Reply.Id $.User.Id}}
+                                        <span class="icon iconfont icon-zan"></span>
+                                        {{else}}
+                                        <span class="icon iconfont icon-zan1"></span>
+                                        {{end}}
+                                        <span class="number">{{$item.Reply.ZanCount}}</span>
+                                    </a>
+                                    <a href="javascript:void(0);" data-type="reply" onclick="gf.content.cai(this, {{$item.Reply.Id}})">
+                                        {{if DidICai "reply" $item.Reply.Id $.User.Id}}
+                                        <span class="icon iconfont icon-cai1"></span>
+                                        {{else}}
+                                        <span class="icon iconfont icon-cai2"></span>
+                                        {{end}}
+                                        <span class="number">{{$item.Reply.CaiCount}}</span>
+                                    </a>
+                                    <a href="javascript:gf.content.reply({{$item.Reply.Id}});" class="reply-button" style="">回复</a>
+                                    {{if ne $.User.Id 0}}
+                                    {{if eq $item.Reply.Uid $.User.Id}}
+                                    <a href="javascript:gf.content.delete({{$item.Reply.Id}});" class="reply-button" style="">删除</a>
+                                    {{end}}
+                                    {{end}}
+                                </span>
+                            </div>
+                        </li>
+                        {{end}}
+                        {{if eq .User.Id 0}}
+                        <!-- 登录提示（未登录时显示） -->
+                        <li class="list-group-item">需要
+                            <a href="/login?aa=1" class="btn-link">登录</a>
+                            后方可回复, 如果你还没有账号请点击这里
+                            <a href="/register" class="btn-link">注册</a>
+                        </li>
+                       {{end}}
+                    </ul>
+                </div>
+
+                <!-- 编辑器 -->
+                <div class="detail-panel" style="margin-top: 10px">
+                    <textarea name="content" style="display: none"></textarea>
+                    <div id="vditor"></div>
+                    <div class="text-right">
+                        <button id="reply-btn" data-reply-id="0" type="submit" class="layui-btn btn-submit">提交</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧信息栏 -->
+            <div class="right-box layui-col-md3">
+                <div class="gf-content-user card">
+                    <div>
+                        <a href="/user/{{.Data.User.Id}}">
+                            <img class="gf-content-user-img image-border circle-image topic-list-author-avatar"
+                                 src="{{.Data.User.Avatar}}">
+                        </a>
+                    </div>
+                    <div class="gf-user-detail">
+                        <h3>
+                            <a href="/user/12">
+                                {{.Data.User.Nickname}}
+                            </a>
+                            <span class="icon iconfont">&#xead2</span>
+                        </h3>
+                    </div>
+                </div>
+                {{template "page_link.html" .}}
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    {{template "footer.html" .}}
+</div>
+</body>
+
+<script type="application/javascript">
+    $(".footer-box").css("position", "inherit")
+
+    gf.content = {
+        // 赞
+        zan: function (elem, id) {
+            {{if ne .User.Id 0}}
+            gf.interact.checkZan(elem, id);
+            {{else}}
+            layer.alert('请登录后再做操作', {icon: 2, offset: '40%'});
+            {{end}}
+        },
+        // 踩
+        cai: function (elem, id) {
+            {{if ne .User.Id 0}}
+            gf.interact.checkCai(elem, id);
+            {{else}}
+            layer.alert('请登录后再做操作', {icon: 2, offset: '40%'});
+            {{end}}
+        },
+        // 删除回复
+        delete: function (id) {
+            layer.confirm('您确定删除回复信息吗？', {icon: 0, title:'删除回复', offset: '40%'}, function(index){
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '/reply/do-delete',
+                    data: {
+                        id: id,
+                    },
+                    success: function (r) {
+                        if (r.code === 0) {
+                            layer.alert(r.message, {icon: 1, offset: '40%'}, function(){
+                                location.reload(); // 刷新页面同步回复统计
+                            });
+                        } else {
+                            layer.alert(r.message, {icon: 2, offset: '40%'});
+                        }
+                    },
+                    error: function (html) {
+                    }
+                });
+            });
+        },
+        reply: function (id) {
+            $("#reply-btn").attr({"data-reply-id":id});
+            $("#reply-btn").html("回复#"+id);
+            $("#reply-btn").focus();
+        },
+    }
+
+    $(function () {
+        // 解析Markdown
+        $('.markdown-body').each(function (i, block) {
+            if ($(block).attr("parsed") == undefined) {
+                $(block).html(marked($(block).html()))
+                $(block).find('pre code').each(function (i, block) {
+                    Prism.highlightElement(block);
+                });
+                $(block).attr("parsed", "true")
+            }
+        });
+        // // 内容目录
+        // new Toc('gf-content', {
+        //     'level': 4,
+        //     'class': 'toc',
+        //     'targetId': 'gf-content-toc'
+        // });
+        // // 仅有内容时才展示
+        // if ($('#gf-content-toc').text() != "undefined") {
+        //     $('.gf-content-toc').show()
+        // }
+
+        // 编辑器初始化
+        let editor = new Vditor('vditor', {
+            cdn: '/public/plugin/vditor/',
+            theme: 'classic',
+            height: 400,
+            icon: 'ant',
+            mode: 'wysiwyg',
+            cache: {enable: false},
+            placeholder: "请输入内容",
+            toolbar: [
+                'emoji',
+                'headings',
+                'bold',
+                'italic',
+                'strike',
+                '|',
+                'line',
+                'quote',
+                'list',
+                'ordered-list',
+                'check',
+                'outdent',
+                'indent',
+                'code',
+                'inline-code',
+                'insert-after',
+                'insert-before',
+                'undo',
+                'redo',
+                'upload',
+                'link',
+                'table',
+                'fullscreen'
+            ],
+            upload: {
+                accept: 'image/*',       // 附件格式
+                url: '/file/upload',  // 上传路径
+                // linkToImgUrl: '/file/upload',  // 粘贴图片上传
+                max: 8 * 1024 * 1024, // 最大上传文件大小（8MB）
+                filename(name) {
+                    return name.replace(/[^(a-zA-Z0-9\u4e00-\u9fa5\.)]/g, '').replace(/[\?\\/:|<>\*\[\]\(\)\$%\{\}@~]/g, '').replace('/\\s/g', '')
+                },
+                // 格式化上传返回
+                format(file, response) {
+                    const {code, data, message} = JSON.parse(response)
+                    var arr = {data: {errFiles: [], succMap: {}}};
+                    var url = window.location.origin + "/"
+
+                    if (code === 1) {
+                        layer.msg(message, {icon: 2, offset: '40%'});
+                        return
+                    }
+
+                    for (var i in data) {
+                        arr.data.succMap[data[i].Name] = url + data[i].Url;
+                    }
+
+                    layer.msg(message, {offset: '40%'});
+                    return JSON.stringify(arr)
+                }
+            },
+            preview: {
+                maxWidth: 1920
+            },
+        });
+
+        $('.btn-submit').on('click', function () {
+            {{if eq .User.Id 0}}
+            layer.alert('请登录后再做操作', {icon: 2, offset: '40%'});
+            return;
+            {{end}}
+            console.log(editor.service.ContentHTML())
+            if (!editor.getHTML()) {
+                layer.alert("内容不能为空", {icon: 2, offset: '40%'});
+                return;
+            }
+            $('button[type=submit]').attr('disabled', 'true').addClass("layui-btn-disabled");
+            var pid=$("#reply-btn").attr("data-reply-id");
+
+            jQuery.ajax({
+                type: 'POST',
+                url: '/reply',
+                data: {
+                    parent_id: pid,
+                    content: editor.getHTML(),
+                    content_id: "{{.Data.Content.Id}}",
+                    target_type: "{{.Data.Content.Type}}",
+                },
+                success: function (r) {
+                    $('button[type=submit]').removeAttr('disabled').toggleClass("layui-btn-disabled");
+                    if (r.code === 0) {
+                        layer.alert(r.message, {icon: 1, offset: '40%'}, function(){
+                            location.reload(); // 刷新页面同步回复统计
+                        });
+                        editor.setValue("", true)
+                    } else {
+                        layer.alert(r.message, {icon: 2, offset: '40%'});
+                    }
+                },
+                error: function (html) {
+                }
+            });
+        });
+    })
+</script>
+</html>
+
+{{end}}

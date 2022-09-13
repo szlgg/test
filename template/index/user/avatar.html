@@ -1,0 +1,45 @@
+{{ define "avatar.html" }}
+<!-- 修改头像 -->
+<div class="layui-col-md6">
+    <div class="card">
+        <div class="card-header"><span class="icon iconfont" style="margin-right: 10px">&#xe622;</span>修改头像</div>
+        <div class="user-avatar-box">
+            <div id="image-preview-div">
+                <img id="preview-img" class="avatar-preview-img image-border img-thumbnail"
+                     src="{{ .User.Avatar}}" style="max-width: 200px;">
+            </div>
+            <button type="button" class="layui-btn" id="avatarButton">
+                <i class="layui-icon">&#xe67c;</i>上传图片
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('upload', function(){
+        var upload = layui.upload;
+
+        //执行实例
+        var uploadInst = upload.render({
+            elem: '#avatarButton' // 绑定元素
+            ,url: '/user/update-avatar' // 上传接口
+            ,accept: 'images' // 允许上传的文件类型
+            ,acceptMime: 'image/jpg, image/png' // 规定打开文件选择框
+            ,done: function(res){
+                //上传完毕回调
+                if (res.code === 0) {
+                    layer.msg(res.message, {icon: 1});
+                    setTimeout(function () {
+                        window.location.href = "/user/avatar";
+                    }, 1000)
+                } else {
+                    layer.msg(res.message, {icon: 2});
+                }
+            }
+            ,error: function(){
+                //请求异常回调
+            }
+        });
+    });
+</script>
+{{end}}

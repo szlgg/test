@@ -1,0 +1,40 @@
+{{ define "header.html" }}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<link rel="stylesheet" href="/public/plugin/layui/css/layui.css">
+<link rel="stylesheet" href="/public/plugin/iconfont/iconfont.css">
+<!--<link rel="stylesheet" href="/public/plugin/wangEditor/css/style.css">-->
+<link rel="stylesheet" href="/public/plugin/markdown-css/github-markdown.css">
+
+<!-- Custom CSS -->
+<link rel="stylesheet" href="/public/css/common.css">
+
+<!-- Bootstrap&jQuery -->
+<script src="/public/plugin/jquery/jquery.min.js"></script>
+<!--<script src="/plugin/bootstrap/popper.min.js"></script>-->
+<!--<script src="/plugin/bootstrap/bootstrap.min.js"></script>-->
+<script src="/public/plugin/iconfont/iconfont.js"></script>
+<script src="/public/plugin/jquery/jquery.form.min.js"></script>
+<script src="/public/plugin/jquery/jquery.validate.min.js"></script>
+<script src="/public/plugin/jquery/sweetalert.min.js"></script>
+
+<!-- Layui Plugins -->
+<script src="/public/plugin/layui/layui.js"></script>
+<!--<script src="/public/plugin/iconfont/iconfont.js"></script>-->
+<!--<script src="/public/plugin/wangEditor/index.js"></script>-->
+
+<!-- Markdown Plugins -->
+<script src="/public/plugin/marked/marked.min.js"></script>
+<script src="/public/plugin/md-toc/md-toc.js"></script>
+
+<!-- Custom JS -->
+<script src="/public/js/common.js?v=1.0"></script>
+<script src="/public/js/encrypt/md5.js"></script>
+<!--<script src="/js/encrypt/md5.js"></script>-->
+
+<title>{{.Title}}</title>
+<meta name="keywords" content="{{.Keywords}}"/>
+<meta name="description" content="{{.Description}}"/>
+
+{{end}}

@@ -1,0 +1,140 @@
+{{ define "login.html" }}
+<!-- 注册页面 -->
+<div class="row">
+    <div class="layui-col-md6 offset-md-3">
+        <div class="alert alert-warning alert-dismissible fade show top-message">
+            未登录或会话已过期，请您登录后再继续{{.URL}}
+            <button id="tips" type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <span class="iconfont">&#xe6c9;</span> 用户登录
+            </div>
+            <div class="card-body">
+                <form class="layui-form login-form" method="post">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>账号</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="passport" required lay-verify="required" placeholder="请输入账号"
+                                   autocomplete="off" class="layui-input" minlength="3" maxlength="20">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>密码</label>
+                        <div class="layui-input-block">
+                            <input type="password" name="password" required lay-verify="required" placeholder="请输入密码"
+                                   autocomplete="off" class="layui-input" minlength="6" maxlength="20">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"><span class="icon iconfont red">&#xe71b;</span>验证码</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="captcha" required lay-verify="required" placeholder="请输入验证码"
+                                   autocomplete="off" class="layui-input" minlength="4" maxlength="4">
+                        </div>
+                        <div class="input-group-append">
+                                    <span class="input-group-text" style="cursor: pointer;padding: 0;">
+                                        <img id="code-img" class="captcha" loading="lazy" onclick="gf.reloadCaptcha()">
+                                    </span>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button type="button" class="layui-btn" id="loginButton">立即提交</button>
+                            <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    jQuery(function ($) {
+        // 刷新验证码
+        gf.reloadCaptcha()
+        var button_status = true
+
+        var $_GET = (function() {
+            var url = window.document.location.href.toString();
+            var u = url.split("?");
+            if (typeof (u[1]) == "string") {
+                u = u[1].split("&");
+                var get = {};
+                for (var i in u) {
+                    var j = u[i].split("=");
+                    get[j[0]] = j[1];
+                }
+                return get;
+            } else {
+                return {};
+            }
+        })();
+
+        if ($_GET['aa'] != 1) {
+            $(".top-message").hide()
+        }
+
+        $("#tips").mouseover(function(){
+            $(this).css("color","#000");
+        });
+        $("#tips").mouseout(function(){
+            $(this).css("color","inherit");
+        });
+        $("#tips").click(function (){
+            $(".top-message").hide()
+        });
+
+        $("#loginButton").click(function () {
+            var name = {passport: "账号", password: "密码", captcha: "验证码"};
+            var data = {};
+            var params = $(".login-form").serializeArray();
+            var status = true;
+
+            // 验证表单项
+            $.each(params, function (index, value) {
+                console.log(value.name);
+                if (value.value === null || value.value === undefined || value.value === "") {
+                    layer.msg(name[value.name] + "不能为空", {icon: 2});
+                    status = false;
+                    return false
+                }
+                data[value.name] = value.value;
+            })
+            if (!status) {
+                return false;
+            }
+
+            // 禁用按钮
+            $("#loginButton").addClass("layui-btn-disabled");
+
+            // post提交
+            $.post("/login", data, function (data) {
+                if (data.code === 0) {
+                    layer.msg("登录成功！", {icon: 1});
+                    setTimeout(function () {
+                        if ($_GET['aa'] != 1) {
+                            window.location.href = "/"
+                        } else {
+                            window.location.href = data.url
+                        }
+                    }, 2000)
+
+                } else {
+                    layer.msg(data.message, {icon: 2});
+                }
+                // 恢复按钮
+                setTimeout(function () {
+                    $("#loginButton").toggleClass("layui-btn-disabled");
+                    button_status = true
+                }, 2000)
+                // 刷新验证码
+                gf.reloadCaptcha()
+            });
+        });
+    });
+</script>
+{{end}}

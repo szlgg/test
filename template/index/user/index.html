@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+{{ define "user/index.html" }}
+<html>
+
+<head>
+    {{template "header.html" .}}
+</head>
+
+<body class="body-color">
+<div class="container-fluid">
+    <!-- 顶部导航栏 -->
+    {{template "navber.html" .}}
+
+    <!-- 个人信息 -->
+    <main>
+        <div class="layui-row layui-col-space15">
+            <!-- Ta的创造 -->
+            <div class="right-box layui-col-md2">
+                <div class="card">
+                    <div class="card-header">Ta的创造</div>
+                    <ul class="list-group list-group-flush">
+                        <!--                        <li class="list-group-item" onmouseover="overIt(this)" onmouseout="outIt(this)"><a href="/user/{{.Output.User.Id}}">-->
+                        <!--                            <span class="icon iconfont">&#xe622;</span> 全部资料</a></li>-->
+                        <li class="list-group-item {{if eq .Type "article"}} active {{end}}" onmouseover="overIt(this)" onmouseout="outIt(this)"><a
+                                href="/user/{{.Output.User.Id}}?type=article">
+                            <span class="icon iconfont">&#xe61c;</span> {{if eq .Output.User.Id
+                            .User.Id}}我{{else}}Ta{{end}}的文章</a>
+                            <span class="badge badge-primary" style="float: right;">{{.Output.Stats.article}}</span>
+                        </li>
+                        <li class="list-group-item {{if eq .Type "topic"}} active {{end}}" onmouseover="overIt(this)" onmouseout="outIt(this)"><a
+                                href="/user/{{.Output.User.Id}}?type=topic">
+                            <span class="icon iconfont">&#xe6b3;</span> {{if eq .Output.User.Id
+                            .User.Id}}我{{else}}Ta{{end}}的主题</a>
+                            <span class="badge badge-primary" style="float: right;">{{.Output.Stats.topic}}</span>
+                        </li>
+                        <li class="list-group-item {{if eq .Type "ask"}} active {{end}}" onmouseover="overIt(this)" onmouseout="outIt(this)"><a
+                                href="/user/{{.Output.User.Id}}?type=ask">
+                            <span class="icon iconfont">&#xe717;</span> {{if eq .Output.User.Id
+                            .User.Id}}我{{else}}Ta{{end}}的问答</a>
+                            <span class="badge badge-primary" style="float: right;">{{.Output.Stats.ask}}</span>
+                        </li>
+                        {{if eq .Output.User.Id .User.Id}}
+                        <li class="list-group-item {{if eq .Type "message"}} active {{end}}" onmouseover="overIt(this)" onmouseout="outIt(this)"><a
+                                href="/user/{{.Output.User.Id}}?type=message">
+                            <span class="icon iconfont">&#xe60e;</span> 我的消息</a>
+                            <span class="badge badge-primary" style="float: right;">{{.Output.Stats.message}}</span>
+                        </li>
+                        {{end}}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 内容列表 -->
+            <div class="right-box layui-col-md7" style="margin-bottom: 20px">
+                <div class="card">
+                    <div class="card-header">社区 原创者的天地</div>
+                    <ul class="list-group">
+                        {{if eq .Type "message"}}
+                        <!-- 我的消息 -->
+                        <li class="list-group-item">
+                            <div class="float-left">
+                                <span class="layui-breadcrumb" lay-separator=" ">
+                                    <a class="btn text-secondary btn-sm text-primary" href="javascript:void(0);">内容回复</a>
+                                </span>
+                            </div>
+                        </li>
+                        <!-- 回复列表 -->
+                        {{range $index, $item := .ReplyList}}
+                        <li class="list-group-item gf-list-item list-group-item-action" onmouseover="overIt(this)" onmouseout="outIt(this)">
+                            <div class="reply-user-info">
+                                <h5 style="display:table">
+                                    <img src="{{$item.User.Avatar}}" style="height: 36px;width:36px;">
+                                    {{$item.User.Nickname}}
+                                    <span class="badge badge-primary" style="margin: 0 5px 0 10px">{{$item.Reply.ContentId | CategoryName}}</span>
+                                    <a href="/{{$item.Reply.TargetType}}/{{$item.Reply.ContentId}}" class="text-truncate" style="max-width: 400px;display: table-cell;vertical-align: middle">{{$item.Reply.ContentId | ContentTitle}}</a>
+                                </h5>
+                                <small style="position: absolute;right: 20px;">{{$item.Reply.CreatedTime | FormatTime}}</small>
+                            </div>
+                            <div class="reply-text">
+                                <span class="float-left" style="font-size: 1rem;font-weight: 500;">回复内容：</span>
+                                <span>{{$item.Reply.Content | HTML}}</span>
+                            </div>
+                            <span style="color: #ccc;text-align: right;">
+                                <span class="icon iconfont">&#xe690;</span> 0
+                                &nbsp;|&nbsp;
+                                <span class="icon iconfont">&#xe6a2;</span> 0
+                                &nbsp;|&nbsp;
+                                <a href="javascript:gf.reply.delete({{$item.Reply.Id}});">
+                                    <span class="icon iconfont" style="color: black;">&#xe63c;</span>
+                                </a>
+                            </span>
+                        </li>
+                        {{end}}
+                        {{else}}
+                        <!--面包屑-->
+                        <li class="list-group-item" id="list-group-item-header">
+                            <div class="float-left">
+                        <span class="layui-breadcrumb" lay-separator=" ">
+                            <a class="btn text-secondary btn-sm {{if eq .Cate 0}}text-primary{{else}}text-secondary{{end}}"
+                               href="/user/{{.Output.User.Id}}?type={{.Type}}&sort={{.Sort}}">全部</a>
+                            {{range $index, $item := .categoryList}}
+                            <a class="btn text-secondary btn-sm {{if eq $.Cate .Id}}text-primary{{else}}text-secondary{{end}}"
+                               href="/user/{{$.Output.User.Id}}?type={{$.Type}}&cate={{$item.Id}}&sort={{$.Sort}}">{{$item.Name}}</a>
+                            {{end}}
+                        </span>
+                            </div>
+                            <div class="float-right">
+                        <span class="layui-breadcrumb" lay-separator=" ">
+                            <a class="btn text-secondary btn-sm {{if eq .Sort 1}}text-primary{{else}}text-secondary{{end}}"
+                               href="/user/{{$.Output.User.Id}}?type={{.Type}}&cate={{.Cate}}&sort=1">最新</a>
+                            <a class="btn text-secondary btn-sm {{if eq .Sort 2}}text-primary{{else}}text-secondary{{end}}"
+                               href="/user/{{$.Output.User.Id}}?type={{.Type}}&cate={{.Cate}}&sort=2">活跃</a>
+                            <a class="btn text-secondary btn-sm {{if eq .Sort 3}}text-primary{{else}}text-secondary{{end}}"
+                               href="/user/{{$.Output.User.Id}}?type={{.Type}}&cate={{.Cate}}&sort=3">热度</a>
+                        </span>
+                            </div>
+                        </li>
+                        {{if .Data}}
+                        <!-- 内容列表 -->
+                        {{range $index, $item := .Data}}
+                        <li class="list-group-item gf-list-item this-content" onmouseover="overIt(this)"
+                            onmouseout="outIt(this)">
+                            <div class="gf-list-item-img">
+                                <img src="{{$item.User.Avatar}}" style="height: 36px;width:36px;">
+                            </div>
+                            <div class="gf-list-item-text">
+                                <div class="float-left">
+                                    <span class="badge {{if eq $.Type ""}}badge-success{{else}}badge-primary{{end}}">{{$item.Category.Name}}</span>
+                                    <span class="gf-list-item-title">
+                                        <a href="/{{$item.Category.ContentType}}/{{$item.Content.Id}}">{{$item.Content.Title}}</a>
+                                    </span>
+                                </div>
+                                <div class="float-right">
+                                <span style="color: #ccc;text-align: right;">
+                                    <span class="icon iconfont">&#xe660;</span> {{$item.Content.ViewCount}}
+                                    &nbsp;&nbsp;|&nbsp;&nbsp;
+                                    <span class="icon iconfont">&#xe6ab;</span> {{$item.Content.ReplyCount}}
+                                    &nbsp;&nbsp;|&nbsp;&nbsp;
+                                </span>
+                                    <span style="font-size: 16px;color: #ccc;-webkit-font-smoothing: antialiased;">{{$item.Content.CreatedTime | FormatTime}}</span>
+                                    {{if eq $.Output.User.Id $.User.Id}}
+                                    <span style="color: #ccc;text-align: right;">
+                                        &nbsp;&nbsp;|&nbsp;&nbsp;
+                                        <a href="/content/update?id={{$item.Content.Id}}">
+                                            <span class="icon iconfont" style="color: darkred;">&#xe780;</span>
+                                        </a>
+                                        &nbsp;&nbsp;|&nbsp;&nbsp;
+                                        <a href="javascript:void(0);" onclick="gf.content.delete({{$item.Content.Id}}, '/user/{{$.Output.User.Id}}?type={{$item.Category.ContentType}}')">
+                                            <span class="icon iconfont" style="color: black;">&#xe63c;</span>
+                                        </a>
+                                    </span>
+                                    {{end}}
+                                </div>
+                            </div>
+                        </li>
+                        {{end}}
+                        {{else}}
+                        <li class="list-group-item gf-list-item this-content" onmouseover="overIt(this)"
+                            onmouseout="outIt(this)">
+                            <i style="font-size: 14px;padding-left: 20px;">作者什么也没留下来~！~</i>
+                        </li>
+                        {{end}}
+                        {{end}}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 资料卡 -->
+            <div class="right-box layui-col-md3">
+                <div class="card gf-content-user">
+                    <div class="gf-user-title">资料卡</div>
+                    <div>
+                        <a href="/user/{{.Output.User.Id}}">
+                            <img class="gf-content-user-img image-border circle-image topic-list-author-avatar"
+                                 src="{{.Output.User.Avatar}}">
+                        </a>
+                    </div>
+                    <div class="gf-user-detail">
+                        <h3>{{.Output.User.Nickname}}</h3>
+                        <p><span class="icon iconfont {{.Output.User.Gender | GenderFont}}"></span>
+                            {{.Output.User.Gender | Gender}}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    {{template "footer.html" .}}
+</div>
+</body>
+
+<script type="application/javascript">
+    $(".footer-box").css("position", "inherit")
+
+    function overIt(obj) {
+        obj.classList.add("user-this-color")
+    }
+
+    function outIt(obj) {
+        obj.classList.remove("user-this-color")
+    }
+
+    gf.reply = {
+        // 删除回复
+        delete: function (id) {
+            layer.confirm('您确定删除回复信息吗？', {icon: 0, title:'删除回复', offset: '40%'}, function(index){
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '/reply/do-delete',
+                    data: {
+                        id: id,
+                    },
+                    success: function (r) {
+                        if (r.code === 0) {
+                            layer.alert(r.message, {icon: 1, offset: '40%'}, function(){
+                                location.reload(); // 刷新页面同步回复统计
+                            });
+                        } else {
+                            layer.alert(r.message, {icon: 2, offset: '40%'});
+                        }
+                    },
+                    error: function (html) {
+                    }
+                });
+            });
+        },
+    }
+</script>
+</html>
+
+{{end}}

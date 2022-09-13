@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{{ define "home/index.html" }}
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    {{template "header.html" .}}
+</head>
+
+<body class="body-color">
+<div class="container-fluid">
+    {{template "navber.html" .}}
+
+    <!-- 内容部分 -->
+    <main>
+        {{template "content/index.html" .}}
+    </main>
+
+    <!-- 底部页脚 -->
+    {{template "footer.html" .}}
+</div>
+</body>
+
+<script type="application/javascript">
+    $(".footer-box").css("position", "inherit")
+</script>
+
+</html>
+{{end}}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+{{ define "register/index.html" }}
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    {{template "header.html" .}}
+</head>
+
+<body class="body-color">
+<div class="container-fluid">
+    {{template "navber.html" .}}
+
+    <!-- 注册 -->
+    <main>
+        {{template "register.html" .}}
+    </main>
+
+    <!-- 页脚 -->
+    {{template "footer.html" .}}
+</div>
+</body>
+
+</html>
+{{end}}

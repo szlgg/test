@@ -1,0 +1,104 @@
+{{ define "navber.html" }}
+<!-- 顶部导航栏 -->
+<div>
+    <div class="layui-header header header-demo">
+        <div class="layui-fluid">
+            <!--logo-->
+            <div style="float: left">
+                <a class="logo" href="/">
+                    <img src="/public/images/logo.png" alt="layui">
+                </a>
+            </div>
+            <!--左侧-->
+            <ul class="layui-nav" style="float:left;">
+                <li class="layui-nav-item {{ if eq .ContentType ""}}layui-this{{end}}"><a href="/">首页</a></li>
+                <li class="layui-nav-item {{ if eq .ContentType "topic"}}layui-this{{end}}"><a href="/topic">主题</a></li>
+                <li class="layui-nav-item {{ if eq .ContentType "ask"}}layui-this{{end}}"><a href="/ask">问答</a></li>
+                <li class="layui-nav-item {{ if eq .ContentType "article"}}layui-this{{end}}"><a href="/article">文章</a></li>
+                <li class="layui-nav-item">
+                    <a href="javascript:">教程</a>
+                    <dl class="layui-nav-child"> <!-- 二级菜单 -->
+                        <dd><a href="https://github.com/caiweiming/DolphinPHP" target="_blank">源码</a></dd>
+                        <dd><a href="https://dolphinphp.com/" target="_blank">官网</a></dd>
+                        <dd><a href="https://www.kancloud.cn/ming5112/dolphinphp/256299" target="_blank">教程</a></dd>
+                    </dl>
+                </li>
+            </ul>
+
+            <!--搜索框-->
+            <div class="container">
+                <form class="parent" method="get" action="/search">
+                    <input type="text" class="search" placeholder="请输入搜索内容" name="key" id="search">
+                </form>
+            </div>
+
+            <!--右侧-->
+            <ul class="layui-nav">
+                <!--已登录-->
+                <li class="layui-nav-item nav-item-right logged-in" style="display: none">
+                    <a href="javascript:"><img class="layui-nav-img user-image"></a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="/user/{{.User.Id}}"><span class="iconfont">&#xe647;</span> 个人中心</a></dd>
+                        <dd><a href="/user/profile"><span class="iconfont">&#xe68c;</span> 编辑资料</a></dd>
+                        <dd><a href="javascript:void(0);" id="logout"><span class="iconfont">&#xe6c9;</span> 退出</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item nav-item-right logged-in"  style="display: none">
+                    <a href="javascript:"><span class="icon iconfont">&#xe647;</span> 发布</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="/content/create?type=article"><span class="icon iconfont">&#xe61c;</span> 发布文章</a>
+                        </dd>
+                        <dd><a href="/content/create?type=topic"><span class="icon iconfont">&#xe6b3;</span> 发布主题</a>
+                        </dd>
+                        <dd><a href="/content/create?type=ask"><span class="icon iconfont">&#xe717;</span> 发布问答</a></dd>
+                    </dl>
+                </li>
+                <!--未登录-->
+                <li class="layui-nav-item nav-item-right not-logged"  style="display: none"><a class="btn btn-link" href="/login">
+                    <svg width="1.3em" height="1.3em" viewBox="0 0 16 16" class="bi bi-arrow-bar-right"
+                         fill="currentColor"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                              d="M6 8a.5.5 0 0 0 .5.5h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L12.293 7.5H6.5A.5.5 0 0 0 6 8zm-2.5 7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5z"/>
+                    </svg>
+                    登录
+                </a></li>
+                <li class="layui-nav-item nav-item-right not-logged"  style="display: none"><a class="btn btn-link" href="/register">
+                    <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-plus" fill="currentColor"
+                         xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd"
+                              d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                    </svg>
+                    注册
+                </a></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $("#logout").click(function () {
+        layer.confirm('您确定需要注销当前登录状态吗？', {icon: 0, title:'注销登录'}, function(index){
+            $.get("/user/logout", function (data) {
+                if (data.code === 1) {
+                    layer.alert(r.message, {icon: 2, offset: '40%'});
+                } else {
+                    window.location.href = "/";
+                }
+
+            });
+        });
+
+    });
+
+    // 回车搜索
+    $("#search").keydown(function (e) {
+        if (e.which == 13) {
+            // window.location.href = "/search";
+            gf.search();
+            e.preventDefault();
+        }
+    });
+</script>
+{{end}}
